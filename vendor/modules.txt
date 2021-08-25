@@ -1,0 +1,16 @@
+# github.com/davecgh/go-spew v1.1.0
+github.com/davecgh/go-spew/spew
+# github.com/gojektech/valkyrie v0.0.0-20190210220504-8f62c1e7ba45
+github.com/gojektech/valkyrie
+# github.com/isbrick/http-client v0.0.0-20210321135403-0a5df00fdb84
+## explicit
+github.com/isbrick/http-client
+# github.com/pkg/errors v0.9.1
+github.com/pkg/errors
+# github.com/pmezard/go-difflib v1.0.0
+github.com/pmezard/go-difflib/difflib
+# github.com/stretchr/testify v1.7.0
+## explicit
+github.com/stretchr/testify/assert
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+gopkg.in/yaml.v3

@@ -58,11 +58,7 @@ func GetPipelineXMLStr() string {
 	return strings.Join(taskPipelineXMLStrArr, " ")
 }
 
-func SamplePipeline() error {
-	addr := "http://10.151.5.150:8091"
-	user := "admin"
-	token := "11e0cd1fd42d5c4fc8e47e9224144179b7"
-
+func SamplePipeline(addr, user, token string) error {
 	envVars := []jenkins.EnvItem{
 		{Key: "JENKINS_SLAVE_WORKSPACE", Value: "/home/jenkins/agent"},
 		{Key: "ACCESS_TOKEN", Value: token},

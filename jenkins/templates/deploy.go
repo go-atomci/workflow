@@ -3,12 +3,41 @@ package templates
 // DeployPipeline defained default jenkins pipeline
 const DeployPipeline = `
 pipeline {
-    agent any
+    agent {
+        kubernetes {
+            defaultContainer 'jnlp'
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  namespace: devops
+spec:
+  containers:
+  {{- range $i, $item := .ContainerTemplates }}
+  - name: {{ $item.Name }}
+    image: {{ $item.Image }}
+    workingDir: {{ $item.WorkingDir }}
+    command:
+    {{- range $cmd := $item.CommandArr }}
+    - {{ $cmd }}
+    {{- end }}
+    args:
+    {{- range $arg := $item.ArgsArr }}
+    - {{ $arg }}
+    {{- end }}
+    tty: true
+  {{- end }}
+""" 
+        }
+    }
     environment {
-    def JENKINS_SLAVE_WORKSPACE = '{{ .JenkinsSlaveWorkspace }}'
-    def ATOMCI_SERVER = '{{ .AtomCIServer }}'
-    def ACCESS_TOKEN = '{{ .AccessToken }}'
-    def USER_TOKEN = '{{ .UserToken }}'
+        {{- range $i, $item := .EnvVars }}
+        def {{ $item.Key }} = '{{ $item.Value }}'
+        {{- end }}
+        def JENKINS_SLAVE_WORKSPACE = '{{ .JenkinsSlaveWorkspace }}'
+        def ATOMCI_SERVER = '{{ .AtomCIServer }}'
+        def ACCESS_TOKEN = '{{ .AccessToken }}'
+        def USER_TOKEN = '{{ .UserToken }}'
     }
     stages {
         stage('HealthCheck') {

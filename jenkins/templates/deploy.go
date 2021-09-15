@@ -34,10 +34,6 @@ spec:
         {{- range $i, $item := .EnvVars }}
         def {{ $item.Key }} = '{{ $item.Value }}'
         {{- end }}
-        def JENKINS_SLAVE_WORKSPACE = '{{ .JenkinsSlaveWorkspace }}'
-        def ATOMCI_SERVER = '{{ .AtomCIServer }}'
-        def ACCESS_TOKEN = '{{ .AccessToken }}'
-        def USER_TOKEN = '{{ .UserToken }}'
     }
     stages {
         stage('HealthCheck') {

@@ -54,9 +54,10 @@ type CIContext struct {
 // DeployContext ..
 type DeployContext struct {
 	CommonContext
-	UserToken        string
-	HealthCheckItems []*StepItem
-	CallBack         CallbackRequest
+	EnvVars            []EnvItem
+	ContainerTemplates []ContainerEnv
+	HealthCheckItems   []*StepItem
+	CallBack           CallbackRequest
 }
 
 // CustomScriptItem ...

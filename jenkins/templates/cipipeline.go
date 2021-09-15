@@ -52,6 +52,7 @@ spec:
 // Checkout ..
 const Checkout = `
 stage('Checkout') {
+    {{if .CheckoutItems }}
     parallel {
         {{- range $i, $item := .CheckoutItems }}
         stage('{{ $item.Name }}') {
@@ -61,12 +62,18 @@ stage('Checkout') {
         }
         {{- end }}
     }
+    {{ else }}
+        steps {
+            sh "there was no checkout items"
+        }
+    {{ end }}
 }
 `
 
 // Compile stage
 const Compile = `
 stage('Builds') {
+    {{if .BuildItems }}
     parallel {
         {{- range $i, $item := .BuildItems }}
         stage('{{ $item.Name }}') {
@@ -78,12 +85,18 @@ stage('Builds') {
         }
         {{- end }}
     }
+    {{ else }}
+        steps {
+            sh "there was no build items"
+        }
+    {{ end }}
 }
 `
 
 // BuildImage stage
 const BuildImage = `
 stage('Images') {
+    {{if .ImageItems }}
     parallel {
         {{- range $i, $item := .ImageItems }}
         stage('{{ $item.Name }}') {
@@ -100,6 +113,11 @@ stage('Images') {
         }
         {{- end }}
     }
+    {{ else }}
+        steps {
+            sh "there was no images items"
+        }
+    {{ end }}
 }
 `
 

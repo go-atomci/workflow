@@ -12,6 +12,7 @@ pipeline {
     }
     stages {
         stage('HealthCheck') {
+            {{ if .HealthCheckItems }}
             parallel {
                 {{- range $i, $item := .HealthCheckItems }}
                 stage('{{ $item.Name }}') {
@@ -21,6 +22,11 @@ pipeline {
                 }
                 {{- end }}
             }
+            {{ else }}
+                steps {
+                    sh "there was no health ckeck items"
+                }
+            {{ end }}
         }
         stage('Callback') {
             steps {

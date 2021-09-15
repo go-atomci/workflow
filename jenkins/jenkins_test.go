@@ -1,12 +1,35 @@
 package jenkins
 
 import (
+	"strings"
 	"testing"
 
+	"github.com/go-atomci/workflow/jenkins/templates"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetStatus(t *testing.T) {
+	appCheckoutItems := []StepItem{
+		{
+			Name:    "app01",
+			Command: "sh 'echo hello'",
+		},
+	}
+	items := map[string]interface{}{"CheckoutItems": appCheckoutItems}
+
+	taskPipelineXMLStrArr := []string{}
+
+	buildItems := map[string]interface{}{"BuildItems": []StepItem{}}
+	imageItems := map[string]interface{}{"ImageItems": []StepItem{}}
+
+	taskPipelineXMLStr, _ := GeneratePipelineXMLStr(templates.Checkout, items)
+	compileTasks, _ := GeneratePipelineXMLStr(templates.Compile, buildItems)
+	buildTasks, _ := GeneratePipelineXMLStr(templates.BuildImage, imageItems)
+	taskPipelineXMLStrArr = append(taskPipelineXMLStrArr, taskPipelineXMLStr)
+	taskPipelineXMLStrArr = append(taskPipelineXMLStrArr, compileTasks)
+	taskPipelineXMLStrArr = append(taskPipelineXMLStrArr, buildTasks)
+	pipelineStagesStr := strings.Join(taskPipelineXMLStrArr, " ")
+
 	CIContext := CIContext{
 		RegistryAddr: "",
 		EnvVars: []EnvItem{
@@ -33,6 +56,7 @@ func TestGetStatus(t *testing.T) {
 				ArgsArr:    []string{"cat"},
 			},
 		},
+		Stages: pipelineStagesStr,
 		CallBack: CallbackRequest{
 			Token: "xxx",
 			URL:   "http://atomci-server",
@@ -44,7 +68,7 @@ func TestGetStatus(t *testing.T) {
 	worker := jenkinsWorker{
 		url:     "http://127.0.0.1:8080",
 		user:    "admin",
-		token:   "110e88c6c52e02b5bdea82f73151832df9",
+		token:   "xxx",
 		jobName: "atomci-unit-test",
 	}
 	var xmlConfig string

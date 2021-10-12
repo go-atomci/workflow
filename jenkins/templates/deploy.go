@@ -49,7 +49,7 @@ spec:
             }
             {{ else }}
                 steps {
-                    sh "there was no health ckeck items"
+                    sh "echo 'there was no health ckeck items'"
                 }
             {{ end }}
         }

@@ -64,7 +64,7 @@ stage('Checkout') {
     }
     {{ else }}
         steps {
-            sh "there was no checkout items"
+            sh "echo 'there was no checkout items'"
         }
     {{ end }}
 }
@@ -87,7 +87,7 @@ stage('Builds') {
     }
     {{ else }}
         steps {
-            sh "there was no build items"
+            sh "echo 'there was no build items'"
         }
     {{ end }}
 }
@@ -115,7 +115,7 @@ stage('Images') {
     }
     {{ else }}
         steps {
-            sh "there was no images items"
+            sh "echo 'there was no images items'"
         }
     {{ end }}
 }

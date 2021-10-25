@@ -103,8 +103,11 @@ func SamplePipeline(addr, user, token string) error {
 		return err
 	}
 
-	jenkinsClient.Ping()
-
+	info, err := jenkinsClient.Ping()
+	if err != nil {
+		return err
+	}
+	log.Printf("jenkins version  %s", info)
 	runID, err := jenkinsClient.Build()
 	if err != nil {
 		return err

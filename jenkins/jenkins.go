@@ -101,17 +101,25 @@ func (w *Jenkins) Ping() error {
 	return w.crumbHeaderVerify()
 }
 
-func (w *Jenkins) getCrumbRequestHeader() (*crumbIssuerResp, error) {
-	url := fmt.Sprintf("%v/crumbIssuer/api/json", strings.TrimSuffix(w.url, "/"))
-	resp, err := sentHTTPRequest("GET", w.user, w.token, "", "", url, nil)
+func (w *Jenkins) Version() (string, error) {
+	respHeader, _, err := w.getCrumbRequestHeader()
 	if err != nil {
-		return nil, err
+		return "", err
+	}
+	return respHeader.Get("X-Jjenkins"), nil
+}
+
+func (w *Jenkins) getCrumbRequestHeader() (http.Header, *crumbIssuerResp, error) {
+	url := fmt.Sprintf("%v/crumbIssuer/api/json", strings.TrimSuffix(w.url, "/"))
+	respHeader, respBody, err := sentHTTPRequest("GET", w.user, w.token, "", "", url, nil)
+	if err != nil {
+		return respHeader, nil, err
 	}
 	respJSON := crumbIssuerResp{}
-	if err := json.Unmarshal(resp, &respJSON); err != nil {
-		return nil, err
+	if err := json.Unmarshal(respBody, &respJSON); err != nil {
+		return respHeader, nil, err
 	}
-	return &respJSON, nil
+	return respHeader, &respJSON, nil
 }
 
 // Abort jenkins build job
@@ -120,7 +128,7 @@ func (w *Jenkins) Abort(runID int64) error {
 		return err
 	}
 	url := fmt.Sprintf("%v/job/%v/%v/stop", strings.TrimSuffix(w.url, "/"), w.jobName, runID)
-	_, err := sentHTTPRequest("POST", w.user, w.token, w.crumbKey, w.crumbValue, url, nil)
+	_, _, err := sentHTTPRequest("POST", w.user, w.token, w.crumbKey, w.crumbValue, url, nil)
 	if err != nil {
 		return err
 	}
@@ -129,12 +137,12 @@ func (w *Jenkins) Abort(runID int64) error {
 
 func (w *Jenkins) crumbHeaderVerify() error {
 	if w.crumbKey == "" || w.crumbValue == "" {
-		resp, err := w.getCrumbRequestHeader()
+		_, respBody, err := w.getCrumbRequestHeader()
 		if err != nil {
 			return err
 		}
-		w.crumbKey = resp.CrumbRequestField
-		w.crumbValue = resp.Crumb
+		w.crumbKey = respBody.CrumbRequestField
+		w.crumbValue = respBody.Crumb
 	}
 	return nil
 }
@@ -150,12 +158,12 @@ func GeneratePipelineXMLStr(templateStr string, context interface{}) (string, er
 // getJobInfo
 func (w *Jenkins) getJobInfo(runID int64) (*JobBaseInfo, error) {
 	url := fmt.Sprintf("%v/job/%v/%v/api/json?pretty=true", strings.TrimSuffix(w.url, "/"), w.jobName, runID)
-	resp, err := sentHTTPRequest("GET", w.user, w.token, w.crumbKey, w.crumbValue, url, nil)
+	_, respBody, err := sentHTTPRequest("GET", w.user, w.token, w.crumbKey, w.crumbValue, url, nil)
 	if err != nil {
 		return nil, err
 	}
 	respJSON := JobBaseInfo{}
-	if err := json.Unmarshal(resp, &respJSON); err != nil {
+	if err := json.Unmarshal(respBody, &respJSON); err != nil {
 		return nil, err
 	}
 	return &respJSON, nil
@@ -172,12 +180,12 @@ func (w *Jenkins) GetJobInfo(runID int64) (*workflow.JobInfo, error) {
 	}
 
 	url := fmt.Sprintf("%v/job/%v/%v/wfapi/describe", strings.TrimSuffix(w.url, "/"), w.jobName, runID)
-	resp, err := sentHTTPRequest("GET", w.user, w.token, w.crumbKey, w.crumbValue, url, nil)
+	_, respBody, err := sentHTTPRequest("GET", w.user, w.token, w.crumbKey, w.crumbValue, url, nil)
 	if err != nil {
 		return nil, err
 	}
 	detailInfo := JobDetailInfo{}
-	if err := json.Unmarshal(resp, &detailInfo); err != nil {
+	if err := json.Unmarshal(respBody, &detailInfo); err != nil {
 		return nil, err
 	}
 
@@ -269,7 +277,7 @@ func (deployflow *DeployContext) Run(addr, user, token, crumbKey, crumbValue, jo
 func buildNow(addr, user, token, crumbKey, crumbValue, jobName string, nextBuildNumber int64) (int64, error) {
 	url := fmt.Sprintf("%v/job/%v/build?delay=0sec", strings.TrimSuffix(addr, "/"), jobName)
 	// TODO: add debug log
-	if _, err := sentHTTPRequest("POST", user, token, crumbKey, crumbValue, url, nil); err != nil {
+	if _, _, err := sentHTTPRequest("POST", user, token, crumbKey, crumbValue, url, nil); err != nil {
 		return 0, err
 	}
 	return nextBuildNumber, nil
@@ -315,7 +323,7 @@ func (deployflow *DeployContext) GetDeployPipelineXML(context DeployContext) (st
 func (jw *jenkinsWorker) GetJob() (*Job, error) {
 	var job Job
 	url := fmt.Sprintf("%v/job/%v/api/json", strings.TrimSuffix(jw.url, "/"), jw.jobName)
-	rspBody, err := sentHTTPRequest("GET", jw.user, jw.token, jw.crumbKey, jw.crumbValue, url, nil)
+	_, rspBody, err := sentHTTPRequest("GET", jw.user, jw.token, jw.crumbKey, jw.crumbValue, url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -346,7 +354,7 @@ func (jw *jenkinsWorker) CreateOrUpdateJob(configXML string) error {
 func (jw *jenkinsWorker) CreateJob(configXML string) error {
 	url := fmt.Sprintf("%v/createItem?name=%v", strings.TrimSuffix(jw.url, "/"), jw.jobName)
 	payload := bytes.NewBuffer([]byte(configXML))
-	if _, err := sentHTTPRequest("POST", jw.user, jw.token, jw.crumbKey, jw.crumbValue, url, payload); err != nil {
+	if _, _, err := sentHTTPRequest("POST", jw.user, jw.token, jw.crumbKey, jw.crumbValue, url, payload); err != nil {
 		return err
 	}
 	return nil
@@ -356,17 +364,17 @@ func (jw *jenkinsWorker) CreateJob(configXML string) error {
 func (jw *jenkinsWorker) UpdateJob(configXML string) error {
 	url := fmt.Sprintf("%v/job/%v/config.xml", strings.TrimSuffix(jw.url, "/"), jw.jobName)
 	payload := bytes.NewBuffer([]byte(configXML))
-	if _, err := sentHTTPRequest("POST", jw.user, jw.token, jw.crumbKey, jw.crumbValue, url, payload); err != nil {
+	if _, _, err := sentHTTPRequest("POST", jw.user, jw.token, jw.crumbKey, jw.crumbValue, url, payload); err != nil {
 		return err
 	}
 	return nil
 }
 
 // sentHTTPRequest ..
-func sentHTTPRequest(method, user, token, crumbKey, crumbValue, url string, body io.Reader) ([]byte, error) {
+func sentHTTPRequest(method, user, token, crumbKey, crumbValue, url string, body io.Reader) (http.Header, []byte, error) {
 	req, err := http.NewRequest(method, url, body)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	req.Header.Set("Content-Type", "application/xml")
 	req.Header.Set("Accept", "application/xml")
@@ -376,23 +384,23 @@ func sentHTTPRequest(method, user, token, crumbKey, crumbValue, url string, body
 	req.SetBasicAuth(user, token)
 	rsp, err := workflow.HTTPClient.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer rsp.Body.Close()
 
 	respBody, err := ioutil.ReadAll(rsp.Body)
 	if err != nil {
-		return nil, err
+		return rsp.Header, nil, err
 	}
 
 	if rsp.StatusCode == http.StatusOK || rsp.StatusCode == http.StatusCreated {
-		return respBody, nil
+		return rsp.Header, respBody, nil
 	} else if rsp.StatusCode == http.StatusNotFound {
-		return nil, fmt.Errorf("404 not found")
+		return rsp.Header, nil, fmt.Errorf("404 not found")
 	} else if rsp.StatusCode == http.StatusUnauthorized {
-		return nil, fmt.Errorf("401 unauthorized")
+		return rsp.Header, nil, fmt.Errorf("401 unauthorized")
 	} else if rsp.StatusCode == http.StatusBadRequest {
-		return nil, fmt.Errorf("400 badRequest")
+		return rsp.Header, nil, fmt.Errorf("400 badRequest")
 	}
-	return nil, fmt.Errorf(string(respBody))
+	return rsp.Header, nil, fmt.Errorf(string(respBody))
 }

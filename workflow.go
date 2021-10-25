@@ -25,7 +25,7 @@ func (d Driver) String() (s string) {
 
 // WorkFlow ..
 type WorkFlow interface {
-	Ping() error
+	Ping() (string, error)
 	Build() (int64, error)
 	Abort(RunID int64) error
 	GetJobInfo(runID int64) (*JobInfo, error)

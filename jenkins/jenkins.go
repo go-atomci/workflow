@@ -37,7 +37,6 @@ type crumbIssuerResp struct {
 // Jenkins jenkins struct
 type Jenkins struct {
 	jenkinsWorker
-	Version   string
 	processor FlowProcessor
 }
 
@@ -85,11 +84,6 @@ func NewJenkinsClient(opts ...Option) (workflow.WorkFlow, error) {
 	for _, opt := range opts {
 		opt(&jenkins)
 	}
-	respHeader, _, err := jenkins.getCrumbRequestHeader()
-	if err != nil {
-		return &jenkins, err
-	}
-	jenkins.Version = respHeader.Get("X-Jenkins")
 	return &jenkins, nil
 }
 
@@ -102,8 +96,12 @@ func (w *Jenkins) Build() (int64, error) {
 	return w.processor.Run(w.url, w.user, w.token, w.crumbKey, w.crumbValue, w.jobName, param)
 }
 
-func (w *Jenkins) Ping() error {
-	return w.crumbHeaderVerify()
+func (w *Jenkins) Ping() (string, error) {
+	respHeader, _, err := w.getCrumbRequestHeader()
+	if err != nil {
+		return "", err
+	}
+	return respHeader.Get("X-Jenkins"), nil
 }
 
 func (w *Jenkins) getCrumbRequestHeader() (http.Header, *crumbIssuerResp, error) {

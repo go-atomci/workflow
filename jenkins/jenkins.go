@@ -105,6 +105,9 @@ func NewJenkinsClient(opts ...Option) (workflow.WorkFlow, error) {
 
 // Build create a jenkins build job & trigger it.
 func (w *Jenkins) Build() (int64, error) {
+	if err := w.crumbHeaderVerify(); err != nil {
+		return 0, err
+	}
 	param, err := json.Marshal(w.processor)
 	if err != nil {
 		return 0, err

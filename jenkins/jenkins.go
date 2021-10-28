@@ -155,6 +155,9 @@ func (w *Jenkins) crumbHeaderVerify() error {
 		if err != nil {
 			return err
 		}
+		if respBody.CrumbRequestField == "" {
+			respBody.CrumbRequestField = "Jenkins-Crumb"
+		}
 		w.crumbKey = respBody.CrumbRequestField
 		w.crumbValue = respBody.Crumb
 	}

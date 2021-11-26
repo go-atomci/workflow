@@ -47,7 +47,6 @@ func TestGetStatus(t *testing.T) {
 	pipelineStagesStr := strings.Join(taskPipelineXMLStrArr, " ")
 
 	CIContext := CIContext{
-		RegistryAddr: "",
 		EnvVars: []EnvItem{
 			{Key: "JENKINS_SLAVE_WORKSPACE", Value: "/tmp"},
 			{Key: "ACCESS_TOKEN", Value: "dddxxx"},

@@ -98,14 +98,11 @@ func SamplePipeline(addr, user, token string) error {
 	// Notes
 	// pipelineStageStr: you can use `jenkins.GeneratePipelineXMLStr()` get the defined of pipelineXmlStr.
 	flowProcessor := &jenkins.CIContext{
-		RegistryAddr:       "192.168.2.10:5000",
 		EnvVars:            envVars,
 		ContainerTemplates: containerTemplates,
 		Stages:             GetPipelineXMLStr(),
 		CommonContext: jenkins.CommonContext{
-			JenkinsSlaveWorkspace: "CIInfo[3]",
-			AccessToken:           "adminToken",
-			AtomCIServer:          "atomciServer",
+			Namespace: "devops",
 		},
 		CallBack: jenkins.CallbackRequest{
 			Token: token,

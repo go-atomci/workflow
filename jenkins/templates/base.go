@@ -45,7 +45,7 @@ const BaseXML = `
         <script>
             {{ .Pipeline }}
         </script>
-        <sandbox>false</sandbox>
+        <sandbox>true</sandbox>
     </definition>
     <triggers/>
     <disabled>false</disabled>
@@ -81,7 +81,7 @@ const DeployBaseXML = `
         <script>
             {{ .Pipeline }}
         </script>
-        <sandbox>false</sandbox>
+        <sandbox>true</sandbox>
     </definition>
     <triggers/>
     <disabled>false</disabled>

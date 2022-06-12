@@ -422,5 +422,5 @@ func sentHTTPRequest(method, user, token, crumbKey, crumbValue, url string, body
 	} else if rsp.StatusCode == http.StatusBadRequest {
 		return rsp.Header, nil, fmt.Errorf("400 badRequest")
 	}
-	return rsp.Header, nil, fmt.Errorf(string(respBody))
+	return rsp.Header, nil, fmt.Errorf("http code: %d, response: %s", rsp.StatusCode, string(respBody))
 }

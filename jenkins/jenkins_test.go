@@ -17,12 +17,25 @@ limitations under the License.
 package jenkins
 
 import (
+	"log"
 	"strings"
 	"testing"
 
 	"github.com/go-atomci/workflow/jenkins/templates"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestJenkinsPing(t *testing.T) {
+	jClient, err := NewJenkinsClient(URL("http://10.151.3.83:8091"), JenkinsUser("admin"), JenkinsToken("8c86169f9d373c2203a44c5daa734e6e"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	res, err := jClient.Ping()
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Println(res)
+}
 
 func TestGetStatus(t *testing.T) {
 	appCheckoutItems := []StepItem{

@@ -27,6 +27,7 @@ apiVersion: v1
 kind: Pod
 metadata:
   namespace: {{ .Namespace }}
+  name: {{ .PodName }}
 spec:
   containers:
   {{- range $i, $item := .ContainerTemplates }}

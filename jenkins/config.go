@@ -20,8 +20,9 @@ import "github.com/go-atomci/workflow"
 
 // CommonContext ..
 type CommonContext struct {
-	Namespace string
-	PodName   string
+	Namespace        string
+	PodName          string
+	DefaultContainer string
 }
 
 // CallbackRequest ..

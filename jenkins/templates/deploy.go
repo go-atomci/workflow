@@ -59,7 +59,9 @@ spec:
                 {{- range $i, $item := .HealthCheckItems }}
                 stage('{{ $item.Name }}') {
                     steps {
-                        {{ $item.Command }}
+                        container('{{ $item.ContainerName }}') {
+                            {{ $item.Command }}
+                        }
                     }
                 }
                 {{- end }}

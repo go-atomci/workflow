@@ -302,6 +302,10 @@ func buildNow(addr, user, token, crumbKey, crumbValue, jobName string, nextBuild
 
 // GetCIPipelineXML ..
 func (buildflow *CIContext) GetCIPipelineXML(context CIContext) (string, error) {
+	// container set default value
+	if context.CommonContext.DefaultContainer == "" {
+		context.CommonContext.DefaultContainer = "jnlp"
+	}
 	pipelineTemplate := template.Must(template.New("pipline").Parse(templates.CIPipeline))
 	var pipelineBuf bytes.Buffer
 	err := pipelineTemplate.Execute(&pipelineBuf, context)
@@ -320,6 +324,10 @@ func (buildflow *CIContext) GetCIPipelineXML(context CIContext) (string, error) 
 
 // GetDeployPipelineXML ..
 func (deployflow *DeployContext) GetDeployPipelineXML(context DeployContext) (string, error) {
+	// container set default value
+	if context.CommonContext.DefaultContainer == "" {
+		context.CommonContext.DefaultContainer = "jnlp"
+	}
 	pipelineTemplate := template.Must(template.New("pipline").Parse(templates.DeployPipeline))
 	var pipelineBuf bytes.Buffer
 	err := pipelineTemplate.Execute(&pipelineBuf, context)

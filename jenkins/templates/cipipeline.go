@@ -21,7 +21,7 @@ const CIPipeline = `
 pipeline {
     agent {
         kubernetes {
-            defaultContainer 'jnlp'
+            defaultContainer {{ .DefaultContainer }}
             yaml """
 apiVersion: v1
 kind: Pod

@@ -21,7 +21,7 @@ const DeployPipeline = `
 pipeline {
     agent {
         kubernetes {
-            defaultContainer {{ .DefaultContainer }}
+            defaultContainer "{{ .DefaultContainer }}"
             yaml """
 apiVersion: v1
 kind: Pod

@@ -74,7 +74,9 @@ stage('Checkout') {
         {{- range $i, $item := .CheckoutItems }}
         stage('{{ $item.Name }}') {
             steps {
-                {{ $item.Command }}
+                container('{{ $item.ContainerName }}') {
+                    {{ $item.Command }}
+                }
             }
         }
         {{- end }}
@@ -118,7 +120,7 @@ stage('Images') {
         {{- range $i, $item := .ImageItems }}
         stage('{{ $item.Name }}') {
             steps {
-                container("kaniko") {
+                container('{{ $item.ContainerName }}') {
                     sh "[ -d $DOCKER_CONFIG ] || mkdir -pv $DOCKER_CONFIG"
 
                     sh """
